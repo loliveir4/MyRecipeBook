@@ -1,0 +1,36 @@
+# Executa quando há push em main ou develop (ou seja, após completar a PR)
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+# Não rodar em validação de PR (só depois do merge)
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: github-secrets   # usa as variáveis salvas na Library (ou remova se usar Variables do pipeline)
+
+steps:
+- checkout: self
+  fetchDepth: 0    # histórico completo (necessário para push de tags, etc.)
+
+- script: |
+    set -e
+
+    echo "Branch atual: $(Build.SourceBranchName)"
+
+    # Identidade do bot (apenas para o push)
+    git config --global user.email "sync-bot@local"
+    git config --global user.name "AzureDevOps Sync Bot"
+
+    # Recria o remoto github usando credenciais seguras
+    git remote remove github 2>/dev/null || true
+    git remote add github https://$(GITHUB_USERNAME):$(GITHUB_PAT)@github.com/loliveir4/MyRecipeBook.git
+
+    # Envia o commit atual para a mesma branch no GitHub + tags
+    git push github HEAD:refs/heads/$(Build.SourceBranchName) --follow-tags
+  displayName: 'Mirror Azure DevOps → GitHub'
