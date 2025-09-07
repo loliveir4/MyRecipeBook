@@ -43,7 +43,7 @@ public class RegisterUserUseCase : IRegisterUserUseCase
 
         await _unitOfWork.Commit();
 
-        return new ResponseRegisteredUserJson { Name = request.Name };
+        return new ResponseRegisteredUserJson { Name = user.Name };
     }
 
     private async Task Validate(RequestRegisterUserjson request)
