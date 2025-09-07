@@ -9,7 +9,7 @@ trigger:
 pr: none
 
 pool:
-  name: Default   # seu pool com o agente self-hosted
+  vmImage: ubuntu-latest
 
 
 variables:
